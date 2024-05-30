@@ -1,14 +1,14 @@
 package com.example.bill.repositories;
 
-import com.example.bill.repositories.entities.BillEntity;
+import com.example.bill.repositories.entities.ElectricityBillEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface BillRepository extends JpaRepository<BillEntity, Long> {
+public interface BillRepository extends JpaRepository<ElectricityBillEntity, Long> {
 
-     Optional<BillEntity> findByCustomerId(Long customerId);
+     Optional<ElectricityBillEntity> findByCustomerId(Long customerId);
 
 }

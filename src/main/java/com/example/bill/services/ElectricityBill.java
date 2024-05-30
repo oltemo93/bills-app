@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class ElectricityBill extends Bill {
 
     private BigDecimal costPerKhw;
-    private Double totalKwhConsumed;
+    private Double totalKhwConsumed;
 
     public BigDecimal getCostPerKhw() {
         return costPerKhw;
@@ -15,12 +15,12 @@ public class ElectricityBill extends Bill {
         this.costPerKhw = costPerKhw;
     }
 
-    public Double getTotalKwhConsumed() {
-        return totalKwhConsumed;
+    public Double getTotalKhwConsumed() {
+        return totalKhwConsumed;
     }
 
-    public void setTotalKwhConsumed(Double totalKwhConsumed) {
-        this.totalKwhConsumed = totalKwhConsumed;
+    public void setTotalKhwConsumed(Double totalKhwConsumed) {
+        this.totalKhwConsumed = totalKhwConsumed;
     }
 
 }

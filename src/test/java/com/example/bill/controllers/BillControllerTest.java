@@ -1,8 +1,9 @@
 package com.example.bill.controllers;
-
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,6 +17,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Optional;
 
 public class BillControllerTest {
 
@@ -36,45 +39,54 @@ public class BillControllerTest {
     @Test
     public void testPaySuccess() throws Exception {
 
-        String requestBody = "{\n" +
-                "    \"bill\":{\n" +
-                "        \"type\":\"electricity\",\n" +
-                "        \"customer\":{\n" +
-                "            \"customerId\":1\n" +
-                "        }\n" +
-                "    },\n" +
-                "    \"amountToPay\":100.0\n" +
-                "}";
-
-        mockMvc.perform(post("/bills")
+        mockMvc.perform(post("/bills/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content("{\"amount\": 100.0}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Successfull payment"));
-
-        verify(billService).pay(any(Payment.class));
     }
 
     @Test
-    public void testPayCustomerNotFound() throws Exception {
-        String requestBody = "{\n" +
-                "    \"bill\":{\n" +
-                "        \"type\":\"electricity\",\n" +
-                "        \"customer\":{\n" +
-                "            \"customerId\":1\n" +
-                "        }\n" +
-                "    },\n" +
-                "    \"amountToPay\":100.0\n" +
-                "}";
+    public void testPayBillNotFound() throws Exception {
+        doThrow(new BillNotFoundException("Bill was not found")).when(billService).pay(anyLong(), any(Payment.class));
 
-        doThrow(new CustomerNotFoundException()).when(billService).pay(any(Payment.class));
-
-        mockMvc.perform(post("/bills")
+        mockMvc.perform(post("/bills/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content("{\"amount\": 100.0}"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Customer was not found"));
+                .andExpect(jsonPath("$.message").value("Bill was not found"));
+    }
 
-        verify(billService).pay(any(Payment.class));
+    @Test
+    public void testPayPaymentException() throws Exception {
+        doThrow(new PaymentException("Payment error")).when(billService).pay(anyLong(), any(Payment.class));
+
+        mockMvc.perform(post("/bills/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"amount\": 100.0}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Payment error"));
+    }
+
+    @Test
+    public void testGetBillSuccess() throws Exception {
+        Bill bill = new ElectricityBill();
+        // Set bill properties if needed
+        when(billService.get(anyLong())).thenReturn(Optional.of(bill));
+
+        mockMvc.perform(get("/bills/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        // Add additional assertions for the bill properties if needed
+    }
+
+    @Test
+    public void testGetBillNotFound() throws Exception {
+        when(billService.get(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/bills/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Bill was not found"));
     }
 }
