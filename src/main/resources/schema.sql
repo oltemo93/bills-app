@@ -3,7 +3,7 @@ CREATE TABLE electricity_bill (
   customer_id INTEGER,
   period_start DATE,
   period_end DATE,
-  cost_per_khw NUMERIC,
+  cost_per_khw DOUBLE,
   total_khw_consumed INTEGER,
   total_amount NUMERIC,
   balance   NUMERIC);

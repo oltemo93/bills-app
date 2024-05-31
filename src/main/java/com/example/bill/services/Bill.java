@@ -6,27 +6,18 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ElectricityBill.class, name = "electricity")
 })
 public abstract class Bill {
 
-    private String type;
     private Long billId;
     protected Customer customer;
     private LocalDate periodStart;
     private LocalDate periodEnd;
     private BigDecimal totalAmount;
     private BigDecimal balance;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public Long getBillId() {
         return billId;
