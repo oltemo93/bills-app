@@ -1,10 +1,11 @@
 package com.example.bill.controllers;
 
-public class ResponseMessage {
+public class ErrorResponse extends Response {
 
     private String message;
 
-    public ResponseMessage(String message) {
+    public ErrorResponse(int statusCode, String message) {
+        super(statusCode);
         this.message = message;
     }
 

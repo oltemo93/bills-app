@@ -28,7 +28,7 @@ public class BillControllerTest {
     private BillService billService;
 
     @InjectMocks
-    private BillController billController;
+    private ElectricityBillController billController;
 
     @BeforeEach
     public void setUp() {
@@ -39,18 +39,18 @@ public class BillControllerTest {
     @Test
     public void testPaySuccess() throws Exception {
 
-        mockMvc.perform(post("/bills/1")
+        mockMvc.perform(post("/bills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": 100.0}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Successfull payment"));
+                .andExpect(jsonPath("$.body").value("Successfull payment"));
     }
 
     @Test
     public void testPayBillNotFound() throws Exception {
-        doThrow(new BillNotFoundException("Bill was not found")).when(billService).pay(anyLong(), any(Payment.class));
+        doThrow(new BillNotFoundException("Bill was not found")).when(billService).pay(any(ElectricityBillPayment.class));
 
-        mockMvc.perform(post("/bills/1")
+        mockMvc.perform(post("/bills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": 100.0}"))
                 .andExpect(status().isNotFound())
@@ -59,11 +59,21 @@ public class BillControllerTest {
 
     @Test
     public void testPayPaymentException() throws Exception {
-        doThrow(new PaymentException("Payment error")).when(billService).pay(anyLong(), any(Payment.class));
+        doThrow(new PaymentException("Payment error")).when(billService).pay(any(ElectricityBillPayment.class));
 
-        mockMvc.perform(post("/bills/1")
+        String requestBody = """
+                {
+                    "bill": {
+                        "type":"electricity",
+                        "billId":1
+                    },
+                    "amountToPay":100
+                }
+                """;
+
+        mockMvc.perform(post("/bills")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"amount\": 100.0}"))
+                        .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Payment error"));
     }

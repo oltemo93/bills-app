@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public abstract class Bill {
 
     private String type;
+    private Long billId;
     protected Customer customer;
     private LocalDate periodStart;
     private LocalDate periodEnd;
@@ -25,6 +26,14 @@ public abstract class Bill {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Long getBillId() {
+        return billId;
+    }
+
+    public void setBillId(Long billId) {
+        this.billId = billId;
     }
 
     public Customer getCustomer() {

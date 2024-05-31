@@ -35,7 +35,8 @@ public class ElectricityBillImplTest {
 
     private CustomerEntity customer;
     private ElectricityBillEntity billEntity;
-    private Payment payment;
+    private ElectricityBill electricityBill;
+    private ElectricityBillPayment payment;
 
     @BeforeEach
     public void setUp() {
@@ -45,7 +46,10 @@ public class ElectricityBillImplTest {
         billEntity.setCustomer(customer);
         billEntity.setBalance(new BigDecimal("100.00"));
 
-        payment = new Payment();
+        electricityBill = new ElectricityBill();
+        electricityBill.setBillId(1L);
+        payment = new ElectricityBillPayment();
+        payment.setBill(electricityBill);
         payment.setAmountToPay(new BigDecimal("50.00"));
     }
 
@@ -53,7 +57,7 @@ public class ElectricityBillImplTest {
     public void testPaySuccess() throws BillNotFoundException, PaymentException {
         when(billRepository.findByCustomerId(1L)).thenReturn(Optional.of(billEntity));
 
-        electricityBillImpl.pay(1L, payment);
+        electricityBillImpl.pay(payment);
 
         verify(billRepository, times(1)).findByCustomerId(1L);
         verify(billRepository, times(1)).save(billEntity);
@@ -65,7 +69,7 @@ public class ElectricityBillImplTest {
         when(billRepository.findByCustomerId(anyLong())).thenReturn(Optional.empty());
 
         BillNotFoundException exception = assertThrows(BillNotFoundException.class, () -> {
-            electricityBillImpl.pay(1L, payment);
+            electricityBillImpl.pay(payment);
         });
 
         assertThat(exception.getMessage(), is("Bill with given ID was not found"));
@@ -79,7 +83,7 @@ public class ElectricityBillImplTest {
         when(billRepository.findByCustomerId(1L)).thenReturn(Optional.of(billEntity));
 
         PaymentException exception = assertThrows(PaymentException.class, () -> {
-            electricityBillImpl.pay(1L, payment);
+            electricityBillImpl.pay(payment);
         });
 
         assertThat(exception.getMessage(), is("No outstanding balance to pay"));

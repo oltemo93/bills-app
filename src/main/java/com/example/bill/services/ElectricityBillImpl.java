@@ -19,7 +19,8 @@ public class ElectricityBillImpl implements BillService {
     private BillMapper billMapper;
 
     @Override
-    public void pay(Long billId, Payment payment) throws BillNotFoundException, PaymentException {
+    public void pay(ElectricityBillPayment payment) throws BillNotFoundException, PaymentException {
+        Long billId = payment.getBill().getBillId();
         ElectricityBillEntity billDB = billRepository.findByCustomerId(billId)
                 .orElseThrow(() -> new BillNotFoundException("Bill with given ID was not found"));
         BigDecimal currentBalance = billDB.getBalance();
