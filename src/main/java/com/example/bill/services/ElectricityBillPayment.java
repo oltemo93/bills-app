@@ -1,10 +1,16 @@
 package com.example.bill.services;
 
+import com.example.bill.services.electricity.ElectricityBill;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 
 public class ElectricityBillPayment {
 
+    @Schema(accessMode= Schema.AccessMode.READ_ONLY)
     private ElectricityBill bill;
+    @NotNull
     private BigDecimal amountToPay;
 
     public ElectricityBill getBill() {

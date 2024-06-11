@@ -1,7 +1,10 @@
 package com.example.bill.services;
 
+import com.example.bill.services.electricity.ElectricityBill;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,12 +15,19 @@ import java.time.LocalDate;
 })
 public abstract class Bill {
 
+    @Schema(accessMode= Schema.AccessMode.READ_ONLY)
     private Long billId;
     protected Customer customer;
+    @NotNull
     private LocalDate periodStart;
+    @NotNull
     private LocalDate periodEnd;
+    @Schema(accessMode= Schema.AccessMode.READ_ONLY)
     private BigDecimal totalAmount;
+    @Schema(accessMode= Schema.AccessMode.READ_ONLY)
     private BigDecimal balance;
+    @NotNull
+    private String serviceAddress;
 
     public Long getBillId() {
         return billId;
@@ -65,5 +75,13 @@ public abstract class Bill {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public String getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 }

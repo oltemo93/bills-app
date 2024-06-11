@@ -10,6 +10,8 @@ import com.example.bill.mappers.BillMapper;
 import com.example.bill.repositories.BillRepository;
 import com.example.bill.repositories.entities.CustomerEntity;
 import com.example.bill.repositories.entities.ElectricityBillEntity;
+import com.example.bill.services.electricity.ElectricityBill;
+import com.example.bill.services.electricity.ElectricityBillImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,5 +118,60 @@ public class ElectricityBillImplTest {
         assertThat(retrievedBill.isPresent(), is(false));
         verify(billRepository, times(1)).findById(1L);
         verify(billMapper, never()).billEntityToBill(ArgumentMatchers.any(ElectricityBillEntity.class));
+    }
+
+    @Test
+    public void testCreate() {
+        ElectricityBillEntity billEntity = new ElectricityBillEntity();
+        billEntity.setId(1L);
+        billEntity.setTotalKhwConsumed(100.0);
+        billEntity.setCostPerKhw(BigDecimal.valueOf(1.5));
+
+        when(billMapper.billDtoToBillEntity(ArgumentMatchers.any(ElectricityBill.class))).thenReturn(billEntity);
+        when(billRepository.save(ArgumentMatchers.any(ElectricityBillEntity.class))).thenReturn(billEntity);
+
+        long billId = electricityBillImpl.create(electricityBill);
+
+        assertThat(billId, is(1L));
+        verify(billMapper, times(1)).billDtoToBillEntity(ArgumentMatchers.any(ElectricityBill.class));
+        verify(billRepository, times(1)).save(ArgumentMatchers.any(ElectricityBillEntity.class));
+    }
+
+    @Test
+    public void testUpdate() throws BillNotFoundException {
+        ElectricityBillEntity billEntity = new ElectricityBillEntity();
+        billEntity.setTotalKhwConsumed(100.0);
+        billEntity.setCostPerKhw(BigDecimal.valueOf(1.5));
+
+        when(billRepository.findById(anyLong())).thenReturn(Optional.of(billEntity));
+
+        electricityBillImpl.update(1L, electricityBill);
+
+        assertThat(billEntity.getTotalAmount(), is(BigDecimal.valueOf(150).setScale(2)));
+        assertThat(billEntity.getBalance(), is(BigDecimal.valueOf(150).setScale(2)));
+        verify(billMapper, times(1)).updateElectricityBillEntity(ArgumentMatchers.any(ElectricityBill.class), ArgumentMatchers.any(ElectricityBillEntity.class));
+        verify(billRepository, times(1)).save(ArgumentMatchers.any(ElectricityBillEntity.class));
+    }
+
+    @Test
+    public void testDelete() {
+        doNothing().when(billRepository).deleteById(anyLong());
+
+        electricityBillImpl.delete(1L);
+
+        verify(billRepository, times(1)).deleteById(anyLong());
+    }
+
+    @Test
+    public void testFindAll() {
+        List<ElectricityBillEntity> billEntities = List.of(new ElectricityBillEntity(), new ElectricityBillEntity());
+        when(billRepository.findAll()).thenReturn(billEntities);
+        when(billMapper.billEntityToBill(ArgumentMatchers.any(ElectricityBillEntity.class))).thenReturn(new ElectricityBill());
+
+        List<Bill> bills = electricityBillImpl.findAll();
+
+        assertThat(bills.size(), is(2));
+        verify(billRepository, times(1)).findAll();
+        verify(billMapper, times(2)).billEntityToBill(ArgumentMatchers.any(ElectricityBillEntity.class));
     }
 }

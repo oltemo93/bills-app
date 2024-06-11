@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class ElectricityBillEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
@@ -23,16 +23,8 @@ public class ElectricityBillEntity {
     private BigDecimal totalAmount;
     @Column(name="balance")
     private BigDecimal balance;
-
-    /**
-     * period_start DATE,
-     *   period_end DATE,
-     *   cost_per_khw NUMERIC,
-     *   total_khw_consumed INTEGER,
-     *   total_amount NUMERIC,
-     *   balance   NUMERIC
-     * @return
-     */
+    @Column(name="service_address")
+    private String serviceAddress;
 
     public Long getId() {
         return id;
@@ -96,5 +88,13 @@ public class ElectricityBillEntity {
 
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 }
