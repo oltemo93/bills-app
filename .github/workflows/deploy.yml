@@ -1,0 +1,27 @@
+name: Deploy to AWS EC2
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Build and package project
+        run: mvn clean package
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build and push Docker image
+        run: |
+          docker build -t bill-app:latest .
+          docker tag bill-app:latest ${{ steps.login-ecr.outputs.registry }}/bill-app:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/bill-app:latest
